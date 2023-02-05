@@ -2,54 +2,78 @@ import React, { useState, useRef } from "react";
 import "./App.css";
 
 function App() {
+  //create a default to do item
   const [todos, setTodos] = useState([
     { item: "This is a default.", id: Math.random() },
   ]);
+  //setup temporary todo item for editing
   const [tempTodo, setTempTodo] = useState({});
+  //determines if edit mode is on or off
   const [edit, setEdit] = useState(false);
+  //create a reference to the input field
   const todoInputRef = useRef();
+  //create a reference to the update input field
   const updateInputRef = useRef();
+  //error handling
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
 
+  //handle new input change
   const handleTodoInput = (event) => {
     todoInputRef.current.value = event.target.value;
     setError(false);
   };
 
+  //handle update input change
   const handleUpdateInput = (event) => {
     updateInputRef.current.value = event.target.value;
     setError(false);
   };
 
+  //add a new todo item
   const addTodo = () => {
     const todo = todoInputRef.current.value;
+    //check if input is empty
     if (todo === "") {
       setError(true);
       setErrorMessage("Please enter a to-do item.");
       return;
     }
+    //check if input is a duplicate
+    if (todos.find((item) => item.item === todo)) {
+      setError(true);
+      setErrorMessage("This to-do item already exists.");
+      return;
+    }
+    //add new todo item
     setTodos((prevTodos) => {
       return [...prevTodos, { item: todo, id: Math.random() }];
     });
+    //clear input field
     todoInputRef.current.value = null;
   };
 
+  //delete a todo item
   const deleteTodo = (todo) => {
     setTodos((prevTodos) => {
+      //filter out the todo item that matches the id
       return prevTodos.filter((prevTodo) => prevTodo.id !== todo.id);
     });
   };
 
+  //open edit mode and set the temp todo item
   const openEdit = (todo) => {
     setEdit(true);
     setTempTodo(todo);
   };
 
+  //updates the todo item
   const updateTodo = () => {
     setTodos((prevTodos) => {
       return prevTodos.map((prevTodo) => {
+        //check if the todo item matches the id
         if (prevTodo.id === tempTodo.id) {
+          //update the todo item
           return {
             item: updateInputRef.current.value,
           };
@@ -57,12 +81,13 @@ function App() {
         return prevTodo;
       });
     });
+    //reset edit mode
     setEdit(false);
   };
 
   return (
     <div className="relative w-auto mx-auto p-10" style={{ width: "750px" }}>
-      <h1 className="text-4xl text-center mb-10 font-semibold text-gray-700">
+      <h1 className="text-4xl text-center mb-10 font-medium text-gray-700">
         Welcome to your To-Do List!
       </h1>
       <div class="flex justify-center w-full">
@@ -83,7 +108,7 @@ function App() {
       <div className="mt-5 mx-auto">
         {error && (
           <div
-            className="bg-red-100 mb-3 text-center mx-auto border border-red-400 text-red-700 px-4 py-3 rounded relative w-72"
+            className="bg-red-100 mb-3 w-80 text-center mx-auto border border-red-400 text-red-700 px-4 py-3 rounded relative"
             role="alert"
           >
             <strong className="font-bold">Error! </strong>
@@ -91,7 +116,7 @@ function App() {
           </div>
         )}
         <h2 className="text-2xl text-center mb-3 text-gray-700">
-          Your current to-do list
+          Your current To-Do List
         </h2>
         <ul className="divide-y divide-gray-300">
           {todos?.length === 0 && (
